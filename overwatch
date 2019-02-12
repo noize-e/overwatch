@@ -1,0 +1,100 @@
+#!/bin/bash
+#
+# System performance watcher, run it as daemon with 'watch'.
+# > watch -n1 '~/bin/overwatch >> ~/log/overwatch.log' 2&>1 & 
+#
+environment="Website Production"
+
+# total cores available
+cores=$(grep 'model name' /proc/cpuinfo | wc -l)
+
+# System load average healthy threshold
+sysload_healthy_threshold=$cores
+
+# hostname ip
+ip="$(hostname -i)"
+
+# how many time in seconds sleep between checks
+wait=60
+
+# Report headings
+system_load_head="System Load Average"
+report_cpu_heading="CPU Usage Average"
+
+
+notify(){
+  echo -e "\nSending notification"
+  webhook="https://hooks.slack.com/services/@HERE_HOOK_ID"
+  payload="{\"text\": \"<!channel> ${1}\", \"channel\": \"@HERE_CHANNEL\" }"
+  status="$(curl -X POST -H "Content-type: application/json" --data "${payload}" ${webhook})"
+  echo -e "Notification status: ${status}\n"
+}
+
+
+get_last_avg_5mins() {
+  over_last_5mins=$(echo "${1}" | awk '{print $(NF-1)/1}' | cut -d . -f1)
+  echo "$over_last_5mins"
+}
+
+
+get_system_load_avg(){
+  load_average=$(uptime | awk '{ print $(NF-2) $(NF-1) $(NF) }' | sed 's/,/ /gi')
+  echo "$(get_last_avg_5mins "$load_average")"
+}
+
+
+get_cpus_usage(){
+  cpu_usage=$(mpstat -u -P ALL | tail -n $((cores+2)))
+  cpu_usage=$(echo "$cpu_usage" | awk '{printf "%6-s %6-s %-6s %-6s %-6s\n",$3,$4,$5,$9,$NF}')
+  echo "$cpu_usage"
+}
+
+
+get_system_uptime(){
+  echo "$(uptime)"
+}
+
+
+generate_report(){
+  report="\n- - -\n"
+  report+="${environment} Performance Report.\n"
+  report+="[ $(date) ]\n\n"
+  report+="${system_load_head}\n"
+  report+="${report_system_uptime}\n\n" 
+  report+="${report_cpu_heading}\n"
+  report+="${report_cpu_usage}\n"
+  echo -e "$report"
+}
+
+
+generate_notification(){
+  notification="[ *$(date)* ]\n"
+  notification+="*${environment}* Load average over healthy threshold.\n\n"
+  notification+="*${system_load_head}*\n"
+  notification+="healthy: \`${sysload_healthy_threshold}%\` "
+  notification+="current: \`${over_5mins_average}%\`\n"
+  notification+="\`\`\`\n"
+  notification+="${report_system_uptime}\n"
+  notification+="\`\`\`\n\n"
+  notification+="*${report_cpu_heading}*\n"
+  notification+="\`\`\`\n"
+  notification+="${report_cpu_usage}\n"
+  notification+="\`\`\`\n"
+  echo -e "$notification"
+}
+
+
+while [ 1 ];
+  do
+    over_5mins_average=$(get_system_load_avg)
+    report_cpu_usage=$(get_cpus_usage)
+    report_system_uptime=$(get_system_uptime)
+
+    echo -e "$(generate_report)"
+    notify "$(generate_notification)"
+
+    if ((over_5mins_average > sysload_healthy_threshold)); then
+      notify "$(generate_notification)"      
+    fi
+    sleep $wait
+done
