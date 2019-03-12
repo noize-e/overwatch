@@ -23,14 +23,12 @@ __Overwatch__ monitors given some rules of thumbs, __last 5-minute average__. Wh
 
 >Load averages are not normalized for the number of CPUs in a system, so a load average of 1 means a single CPU system is loaded all the time while on a 4 CPU system it means it was idle 75% of the time.
 
----
 
 Report
 ---
 
 Given the channels used for notifications I worked with, __overwatch__ send a notification to a slack webhook.
 
----
 
 Usage
 ---
