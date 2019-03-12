@@ -1,7 +1,7 @@
-###### v0.9
-
 Overwatch
 =========
+
+###### v0.9
 
 System Load Average
 ---
@@ -30,8 +30,10 @@ Report
 
 Given the channels used for notifications I worked with, __overwatch__ send a notification to a slack webhook.
 
+---
+
 Usage
------
+---
 
 Run it as daemon with 'watch'.
 
