@@ -1,10 +1,7 @@
 Overwatch
 =========
 
-###### v0.9
-
-System Load Average
----
+## Overview
 
 As Linux administrator, on any sign of trouble with the system's health, __one critical state to monitor is the load average of the system__( this can be displayed with `uptime` or `top` commands ).
 
@@ -23,20 +20,15 @@ __Overwatch__ monitors given some rules of thumbs, __last 5-minute average__. Wh
 
 >Load averages are not normalized for the number of CPUs in a system, so a load average of 1 means a single CPU system is loaded all the time while on a 4 CPU system it means it was idle 75% of the time.
 
+## Usage
 
-Report
----
+- Copy into your user's __bin__ directory the overwatch script file, remember to give it execution permissions `chmod x-ug ~/bin/overwatch`
+- From your preferred terminal, execute the overwath command `>_ overwatch >> >> ~/log/overwatch.log`
+- For run it as a daemon use the __watch__ command: `watch -n1 '~/bin/overwatch >> ~/log/overwatch.log' 2&>1 &`
 
-Given the channels used for notifications I worked with, __overwatch__ send a notification to a slack webhook.
+## Features
 
-###### Slack hook report
+Notification via slack webhook
+
 ![slack-report](https://github.com/noize-e/overwatch/blob/master/overwatch-report.png)
 
-Usage
----
-
-Run it as daemon with 'watch'.
-
-```shell
-watch -n1 '~/bin/overwatch >> ~/log/overwatch.log' 2&>1 & 
-```
