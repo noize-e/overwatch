@@ -1,34 +1,26 @@
 Overwatch
 =========
 
-## Overview
+In every linux server, the load average is a critical metric to messaure the system's health.
 
-As Linux administrator, on any sign of trouble with the system's health, __one critical state to monitor is the load average of the system__( this can be displayed with `uptime` or `top` commands ).
+```#bash
+root@localhost:~# uptime
+ 17:46:36 up 9 days,  8:19,  1 user,  load average: 0.00, 0.00, 0.00
+```
 
-The __system load average__ is the number of processes that are either in a runnable or uninterruptable state, Unix refers to this as the run-queue length and basically is what we refer as CPU load, do not 
-confused with CPU percentage. Load averages do not include any processes or threads waiting on I/O, networking, databases or anything else not demanding the CPU. It narrowly focuses on what is actively demanding CPU time. 
+The load average is the number of processes that are running or uninterruptible; the run-queue length  or CPU load.
+This metric doesn't include processes/threads waiting in I/O, networking and databases. It narrowly focuses on what is actively demanding CPU time. 
+A process in a runnable state is either using the CPU or waiting to use the CPU. In a uninterruptible state is waiting for I/O access. 
 
->A process in a runnable state is either using the CPU or waiting to use the CPU.
->A process in uninterruptable state is waiting for some I/O access, eg waiting for disk.
-There are numerous ways of monitoring system load average including uptime. What does Overwatch is, it uses these tools and monitors given a interval of time any change in the load averages.
-
-The three load-average values are the 1-minute, 5-minute and 15-minute average.  That means, reading from left to right, one can examine the aging trend and/or duration of the particular system state. for a more detailed information about this topic check the [Examining Load Average](https://www.linuxjournal.com/article/9001) article
-
-Being monitoring all time the system health state is overwhelming although too demanding. So for this, i create __Overwatch__. 
-
-__Overwatch__ monitors given some rules of thumbs, __last 5-minute average__. Why? Because is totally normal to have some spike above the healthy threshold over the one-minute average. The real pain is, when it becames a constant over the `5-minute` and the `15-minute` averages.
-
->Load averages are not normalized for the number of CPUs in a system, so a load average of 1 means a single CPU system is loaded all the time while on a 4 CPU system it means it was idle 75% of the time.
+Overwatch monitor this metric relying in the uptime's output.
 
 ## Usage
 
-- Copy into your user's __bin__ directory the overwatch script file, remember to give it execution permissions `chmod x-ug ~/bin/overwatch`
-- From your preferred terminal, execute the overwath command `>_ overwatch >> >> ~/log/overwatch.log`
-- For run it as a daemon use the __watch__ command: `watch -n1 '~/bin/overwatch >> ~/log/overwatch.log' 2&>1 &`
+```bash
+chmod x-ug ~/bin/overwatch
+watch -n1 '~/bin/overwatch >> ~/log/overwatch.log' 2&>1 &
+```
 
-## Features
-
-Notification via slack webhook
-
+### Notification:
 ![slack-report](https://github.com/noize-e/overwatch/blob/master/overwatch-report.png)
 
